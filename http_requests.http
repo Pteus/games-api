@@ -1,0 +1,14 @@
+### GET all games
+GET http://localhost:8080/game
+
+### GET game by id
+GET http://localhost:8080/game/1
+
+### POST game
+POST http://localhost:8080/game
+
+### PUT game
+PUT http://localhost:8080/game/1
+
+### Delete game
+DELETE http://localhost:8080/game/1
