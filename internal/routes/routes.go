@@ -1,14 +1,12 @@
-package application
+package routes
 
 import (
-	"games-api/model"
+	"github.com/pteus/games-api/internal/handler"
 	"net/http"
 )
 
-func loadRoutes() *http.ServeMux {
+func LoadRoutes(gameHandler *handler.GameHandler) *http.ServeMux {
 	mux := http.NewServeMux()
-
-	gameHandler := &model.Game{}
 
 	mux.HandleFunc("GET /game", gameHandler.List)
 	mux.HandleFunc("POST /game", gameHandler.Create)

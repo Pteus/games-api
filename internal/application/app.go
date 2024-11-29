@@ -2,17 +2,24 @@ package application
 
 import (
 	"fmt"
-	"games-api/middleware"
+	"github.com/pteus/games-api/internal/handler"
+	"github.com/pteus/games-api/internal/middleware"
+	"github.com/pteus/games-api/internal/repository"
+	"github.com/pteus/games-api/internal/routes"
 	"net/http"
 )
 
 type App struct {
 	router http.Handler
+	db     repository.GameRepository
 }
 
 func NewApp() *App {
+	gameRepo := repository.NewInMemoryGameRepository()
+	gameHandler := &handler.GameHandler{Db: gameRepo}
+
 	return &App{
-		router: loadRoutes(),
+		router: routes.LoadRoutes(gameHandler),
 	}
 }
 

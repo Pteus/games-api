@@ -1,7 +1,7 @@
 package main
 
 import (
-	"games-api/application"
+	"github.com/pteus/games-api/internal/application"
 	"log"
 )
 
