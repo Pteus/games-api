@@ -46,7 +46,7 @@ func (r *InMemoryGameRepository) GetByID(id uuid.UUID) (*model.Game, error) {
 }
 
 // Create adds a new game to the repository, generating a new UUID for the game
-func (r *InMemoryGameRepository) Create(game model.Game) error {
+func (r *InMemoryGameRepository) Create(game model.Game) (uuid.UUID, error) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
@@ -55,7 +55,7 @@ func (r *InMemoryGameRepository) Create(game model.Game) error {
 
 	// Store the game in the repository
 	r.games[game.ID] = game
-	return nil
+	return game.ID, nil
 }
 
 // DeleteById removes a game from the repository by its ID

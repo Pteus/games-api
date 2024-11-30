@@ -2,13 +2,28 @@
 GET http://localhost:8080/game
 
 ### GET game by id
-GET http://localhost:8080/game/1
+GET http://localhost:8080/game/8ff5e0ad-dfcc-4baf-8d6a-9de8972adbd6
 
 ### POST game
 POST http://localhost:8080/game
+Content-Type: application/json
+
+{
+  "name": "game1",
+  "platforms": ["platform1, platform2"],
+  "genre": "genre1"
+}
 
 ### PUT game
-PUT http://localhost:8080/game/1
+PUT http://localhost:8080/game/8ff5e0ad-dfcc-4baf-8d6a-9de8972adbd6
+Content-Type: application/json
+
+{
+  "name": "game11",
+  "platforms": ["platform11, platform21"],
+  "genre": "genre11"
+}
+
 
 ### Delete game
-DELETE http://localhost:8080/game/1
+DELETE http://localhost:8080/game/8ff5e0ad-dfcc-4baf-8d6a-9de8972adbd6

@@ -16,7 +16,7 @@ type App struct {
 
 func NewApp() *App {
 	gameRepo := repository.NewInMemoryGameRepository()
-	gameHandler := &handler.GameHandler{Db: gameRepo}
+	gameHandler := &handler.GameHandler{Repo: gameRepo}
 
 	return &App{
 		router: routes.LoadRoutes(gameHandler),
@@ -26,7 +26,7 @@ func NewApp() *App {
 func (a *App) Start() error {
 	server := &http.Server{
 		Addr:    ":8080",
-		Handler: middleware.Logging(a.router),
+		Handler: middleware.ApplyMiddleware(a.router, middleware.Logging, middleware.SetJSONContentType),
 	}
 
 	fmt.Println("Starting server on :8080")
