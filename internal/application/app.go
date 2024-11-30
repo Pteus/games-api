@@ -6,6 +6,7 @@ import (
 	"github.com/pteus/games-api/internal/middleware"
 	"github.com/pteus/games-api/internal/repository"
 	"github.com/pteus/games-api/internal/routes"
+	"log"
 	"net/http"
 )
 
@@ -15,7 +16,10 @@ type App struct {
 }
 
 func NewApp() *App {
-	gameRepo := repository.NewInMemoryGameRepository()
+	gameRepo, err := repository.NewPostgresGameRepository()
+	if err != nil {
+		log.Fatal(err)
+	}
 	gameHandler := &handler.GameHandler{Repo: gameRepo}
 
 	return &App{
