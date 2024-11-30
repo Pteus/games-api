@@ -12,6 +12,7 @@ type GameHandler struct {
 	Repo repository.GameRepository
 }
 
+//goland:noinspection GoUnusedParameter
 func (h *GameHandler) List(w http.ResponseWriter, r *http.Request) {
 	games, err := h.Repo.GetAll()
 	if err != nil {
