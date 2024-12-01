@@ -10,7 +10,7 @@ Content-Type: application/json
 
 {
   "name": "game1",
-  "platforms": ["platform1, platform2"],
+  "platforms": ["platform1", "platform2"],
   "genre": "genre1"
 }
 
@@ -26,4 +26,4 @@ Content-Type: application/json
 
 
 ### Delete game
-DELETE http://localhost:8080/game/8ff5e0ad-dfcc-4baf-8d6a-9de8972adbd6
+DELETE http://localhost:8080/game/e86c5950-cf31-4ff2-822d-374a2789d13d

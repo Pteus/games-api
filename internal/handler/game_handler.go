@@ -2,10 +2,11 @@ package handler
 
 import (
 	"encoding/json"
+	"net/http"
+
 	"github.com/google/uuid"
 	"github.com/pteus/games-api/internal/model"
 	"github.com/pteus/games-api/internal/repository"
-	"net/http"
 )
 
 type GameHandler struct {
@@ -85,7 +86,6 @@ func (h *GameHandler) UpdateByID(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusOK)
-
 }
 
 func (h *GameHandler) DeleteByID(w http.ResponseWriter, r *http.Request) {

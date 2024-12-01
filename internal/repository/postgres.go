@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+
 	"github.com/google/uuid"
 	_ "github.com/lib/pq"
 	"github.com/pteus/games-api/internal/model"
@@ -75,43 +76,55 @@ func (r *PostgresGameRepository) GetByID(id uuid.UUID) (*model.Game, error) {
 	return &game, nil
 }
 
-func (r *PostgresGameRepository) Create(game model.Game) (uuid.UUID, error) {
-	gameID := uuid.New()
-
-	// Insert the game into the 'games' table
-	_, err := r.db.Exec(
-		"INSERT INTO games (id, name, genre) VALUES ($1, $2, $3)",
-		gameID, game.Name, game.Genre,
-	)
+func (repo *PostgresGameRepository) Create(game model.Game) (uuid.UUID, error) {
+	tx, err := repo.db.Begin()
 	if err != nil {
-		return uuid.UUID{}, fmt.Errorf("error inserting game: %v", err)
+		return uuid.Nil, err
+	}
+	defer func() {
+		if p := recover(); p != nil {
+			tx.Rollback()
+			panic(p)
+		} else if err != nil {
+			tx.Rollback()
+		} else {
+			tx.Commit()
+		}
+	}()
+
+	// Insert the game into the games table
+	game.ID = uuid.New()
+	_, err = tx.Exec(`INSERT INTO games (id, name, genre) VALUES ($1, $2, $3)`,
+		game.ID, game.Name, game.Genre)
+	if err != nil {
+		return uuid.Nil, err
 	}
 
-	// Insert the platforms into the 'platforms' table (if not already present)
+	// Insert or retrieve platform IDs
+	platformIDs := []int{}
 	for _, platform := range game.Platforms {
 		var platformID int
-		err := r.db.QueryRow("SELECT id FROM platforms WHERE name = $1", platform).Scan(&platformID)
-		if errors.Is(err, sql.ErrNoRows) {
-			// Platform doesn't exist, insert it
-			err = r.db.QueryRow("INSERT INTO platforms (name) VALUES ($1) RETURNING id", platform).Scan(&platformID)
-			if err != nil {
-				return uuid.UUID{}, fmt.Errorf("error inserting platform: %v", err)
-			}
-		} else if err != nil {
-			return uuid.UUID{}, fmt.Errorf("error checking platform: %v", err)
-		}
-
-		// Associate the game with the platform in the 'game_platforms' table
-		_, err = r.db.Exec(
-			"INSERT INTO game_platforms (game_id, platform_id) VALUES ($1, $2)",
-			gameID, platformID,
-		)
+		err = tx.QueryRow(
+			`INSERT INTO platforms (name) VALUES ($1)
+			ON CONFLICT (name) DO UPDATE SET name = EXCLUDED.name
+			RETURNING id`, platform).Scan(&platformID)
 		if err != nil {
-			return uuid.UUID{}, fmt.Errorf("error associating game with platform: %v", err)
+			return uuid.Nil, err
+		}
+		platformIDs = append(platformIDs, platformID)
+	}
+
+	// Link the game with platforms in game_platforms table
+	for _, platformID := range platformIDs {
+		_, err = tx.Exec(
+			`INSERT INTO game_platforms (game_id, platform_id) VALUES ($1, $2)`,
+			game.ID, platformID)
+		if err != nil {
+			return uuid.Nil, err
 		}
 	}
 
-	return gameID, nil
+	return game.ID, nil
 }
 
 func (r *PostgresGameRepository) DeleteById(id uuid.UUID) error {
